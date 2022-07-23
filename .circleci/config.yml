@@ -1,4 +1,5 @@
 version: 2.1
+
 jobs:
   build-frontend:
     docker:
@@ -70,7 +71,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
- scan-frontend:
+  scan-frontend:
     docker:
       - image: circleci/node:13.8.0
     steps:
