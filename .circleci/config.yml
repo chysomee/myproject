@@ -240,9 +240,38 @@ jobs:
             ls -la
             ansible-playbook -i ~/project/.circleci/ansible/inventory.txt configure-server.yml
 
-      - destroy-environment          
+      - destroy-environment      
 
+  run-migrations:
+    docker:
+      - image: cimg/node:13.8.0
+    steps:
+      - checkout
+      - install_awscli
+      - install_nodejs
+      - restore_cache:
+          keys: [backend-build]
 
+      - run:
+          name: Run migrations #migrate database
+          command: |
+            cd backend
+            npm install        
+            npm run migrations > migrations_dump.txt
+            cat migrations_dump.txt
+      - run:
+          name: Send migrations status to kvdb.io # 3rd party key value store
+          command: |
+            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            then
+              curl https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+            else
+              echo "No migrations are pending"
+            fi
+          no_output_timeout: 10m
+
+      - destroy-environment
+      - revert-migrations
 workflows:
   default:
     jobs:
@@ -261,3 +290,5 @@ workflows:
           filters:
             branches:
               only: [master]
+      - run-migrations:
+          requires: [configure-infrastructure]
