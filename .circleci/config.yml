@@ -344,7 +344,7 @@ jobs:
             ls -la
             npm run build
             cd ..
-            tar -C backend -czvf artifact.tar.gz
+            tar -C backend -czvf artifact.tar.gz .
             
             pwd
             #export TYPEORM_MIGRATIONS_DIR=./migrations
