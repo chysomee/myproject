@@ -257,7 +257,7 @@ jobs:
           keys: [backend-build]
 
       - run:
-          name: Run migrations ########migrate database
+          name: Run migrations #######migrate database
           command: |
             cd backend
             npm install        
